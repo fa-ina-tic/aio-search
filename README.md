@@ -57,7 +57,7 @@ aio-search "What is a transformer model?"
 
 ```bash
 aio-search --json "What is supervised learning?"
-# → {"answer": "...", "attempts": 1}
+# → {"results": [...], "query": "SELECT ...", "attempts": 1}
 ```
 
 ---
@@ -117,7 +117,9 @@ Claude will then have a `search_aio` tool available in every conversation.
 from search_aio import search, TOOL_SCHEMA
 
 result = search("What is a generative adversarial network?")
-print(result["answer"])
+print(result["results"])   # raw SPARQL rows
+print(result["query"])     # SPARQL query used
+print(result["attempts"])  # number of retries
 
 # TOOL_SCHEMA — pass to client.messages.create(tools=[TOOL_SCHEMA], ...)
 ```
@@ -133,12 +135,9 @@ User question (scope already validated by parent pipeline)
 [Claude → SPARQL] ──▶ [owlready2 query on aio-full.owl]
      │                          │
      └──────── results ─────────┘
-     │
-     ▼
-[Claude → natural language answer]
      │  (retries up to 3× if results are thin)
      ▼
-  Answer
+  Raw ontology results
 ```
 
 ---

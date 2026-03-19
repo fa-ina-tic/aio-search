@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""AIO subagent — query the Artificial Intelligence Ontology via natural language."""
+"""AIO subagent — query the Artificial Intelligence Ontology via SPARQL."""
 
 import argparse
 import json
@@ -51,31 +51,49 @@ Subclass relations: ?child rdfs:subClassOf ?parent
 Return ONLY the SPARQL SELECT query, no explanation or markdown."""
 
 
-def _llm(prompt: str, max_tokens: int = 512) -> str:
+def _llm(prompt: str, max_tokens: int = 400) -> str:
     return _get_client().messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-haiku-4-5-20251001",
         max_tokens=max_tokens,
         messages=[{"role": "user", "content": prompt}],
     ).content[0].text.strip()
+
+
+def _serialize(val):
+    if isinstance(val, (str, int, float, bool)) or val is None:
+        return val
+    return str(val)
 
 
 def _run_sparql(query: str) -> list:
     query = re.sub(r"^```(?:sparql)?\n?", "", query.strip())
     query = re.sub(r"\n?```$", "", query).strip()
     try:
-        return list(default_world.sparql(query))[:15]
+        rows = list(default_world.sparql(query))[:15]
+        return [[_serialize(cell) for cell in row] for row in rows]
     except Exception as e:
         return [f"SPARQL error: {e}"]
+
+
+def _is_thin(results: list) -> bool:
+    """True if results are empty or contain only a SPARQL error."""
+    if not results:
+        return True
+    if len(results) == 1 and isinstance(results[0], str) and results[0].startswith("SPARQL error"):
+        return True
+    return False
 
 
 def search(question: str, owl_path: Path = DEFAULT_OWL, max_iters: int = 3) -> dict:
     """Search the AIO ontology for a question.
 
-    Scope filtering is handled by the parent pipeline — this subagent always searches.
+    Generates a SPARQL query via Claude, runs it against the ontology, and
+    returns the raw results. Retries up to max_iters times if results are thin.
 
     Returns:
         {
-          "answer": str,
+          "results": list,   # raw SPARQL result rows
+          "query":   str,    # final SPARQL query used
           "attempts": int
         }
 
@@ -101,7 +119,6 @@ def search(question: str, owl_path: Path = DEFAULT_OWL, max_iters: int = 3) -> d
             f"Question: {question}\n\n"
             f"Previous attempts:\n{prev}\n\n"
             "Write a SPARQL query:",
-            max_tokens=400,
         )
         results = _run_sparql(sparql)
         history.append({"q": sparql, "r": results})
@@ -111,25 +128,12 @@ def search(question: str, owl_path: Path = DEFAULT_OWL, max_iters: int = 3) -> d
             file=sys.stderr,
         )
 
-        answer = _llm(
-            f"Question: {question}\n\n"
-            "AIO ontology SPARQL results:\n"
-            + "\n".join(f"Attempt {j+1}: {h['r']}" for j, h in enumerate(history))
-            + "\n\nAnswer the question from these results. "
-            "If insufficient, start with NEED_MORE.",
-            max_tokens=600,
-        )
+        if not _is_thin(results):
+            return {"results": results, "query": sparql, "attempts": i + 1}
 
-        if not answer.upper().startswith("NEED_MORE"):
-            return {"answer": answer, "attempts": i + 1}
-
-    final = _llm(
-        f"Question: {question}\n\nAll ontology data:\n"
-        + "\n".join(str(h["r"]) for h in history)
-        + "\n\nGive the best possible answer.",
-        max_tokens=600,
-    )
-    return {"answer": final, "attempts": max_iters}
+    # Return whatever we have after max retries
+    last = history[-1]
+    return {"results": last["r"], "query": last["q"], "attempts": max_iters}
 
 
 # ---------------------------------------------------------------------------
@@ -140,7 +144,7 @@ TOOL_SCHEMA = {
     "name": "search_aio",
     "description": (
         "Query the Artificial Intelligence Ontology (AIO) with a natural-language question. "
-        "Returns a structured answer grounded in the ontology. "
+        "Returns raw SPARQL result rows grounded in the ontology. "
         "Scope filtering is handled by the caller — always passes the question through."
     ),
     "input_schema": {
@@ -160,7 +164,7 @@ def main():
     parser = argparse.ArgumentParser(
         prog="aio-search",
         description="Query the AI Ontology (AIO) with natural language. "
-        "Designed to run as a standalone CLI or as a subagent tool.",
+        "Returns raw ontology results. Designed to run as a standalone CLI or as a subagent tool.",
     )
     parser.add_argument(
         "question",
@@ -183,12 +187,12 @@ def main():
     args = parser.parse_args()
 
     if args.question:
-        # Single-shot mode (agent / scripted use)
         result = search(args.question, owl_path=args.ontology)
         if args.json_out:
             print(json.dumps(result))
         else:
-            print(result["answer"])
+            for row in result["results"]:
+                print(row)
     else:
         # Interactive REPL
         _load_ontology(args.ontology)
@@ -201,7 +205,9 @@ def main():
             if not question or question.lower() in ("quit", "exit", "q"):
                 break
             result = search(question, owl_path=args.ontology)
-            print(f"\n{result['answer']}\n" + "─" * 60 + "\n")
+            for row in result["results"]:
+                print(row)
+            print("─" * 60 + "\n")
 
 
 if __name__ == "__main__":

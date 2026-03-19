@@ -12,16 +12,17 @@ def search_aio(question: str) -> str:
     """Query the Artificial Intelligence Ontology (AIO) with a natural-language question.
 
     Use this to look up AI concepts, algorithms, techniques, model types, and
-    their relationships. Scope filtering is handled by the caller.
+    their relationships. Returns raw SPARQL result rows from the ontology.
+    Scope filtering is handled by the caller.
 
     Args:
         question: A natural-language question about an AI concept.
 
     Returns:
-        A grounded answer derived from the AIO ontology.
+        Raw ontology result rows as a newline-separated string.
     """
     result = search(question)
-    return result["answer"]
+    return "\n".join(str(row) for row in result["results"])
 
 
 if __name__ == "__main__":
