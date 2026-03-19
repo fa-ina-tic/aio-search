@@ -82,20 +82,7 @@ Once installed, Claude Code will automatically discover and use the `aio-search`
 
 ---
 
-### B — Claude Code subagent
-
-The agent definition is already at `.claude/agents/aio-search.md`. Claude Code will automatically discover it and delegate to it when appropriate.
-
-To invoke it explicitly from within Claude Code, ask:
-```
-Use the aio-search agent to explain what a transformer model is.
-```
-
-The subagent calls `aio-search --json "<question>"` via Bash and returns the answer.
-
----
-
-### C — MCP server for Claude Desktop / claude.ai
+### B — MCP server for Claude Desktop / claude.ai
 
 Start the server:
 
@@ -124,7 +111,7 @@ Claude will then have a `search_aio` tool available in every conversation.
 
 ---
 
-### D — Python import (programmatic use)
+### C — Python import (programmatic use)
 
 ```python
 from search_aio import search, TOOL_SCHEMA
@@ -162,8 +149,6 @@ User question (scope already validated by parent pipeline)
 aio-full.owl               ← ontology file (you download this)
 search_aio.py              ← core: CLI + importable module + TOOL_SCHEMA
 mcp_server.py              ← MCP server for Claude Desktop / claude.ai
-aio-search/
-  aio-search.md            ← Claude Code subagent definition
 .claude-plugin/
   plugin.json              ← plugin manifest (for marketplace distribution)
   marketplace.json         ← marketplace catalog (GitHub install target)
