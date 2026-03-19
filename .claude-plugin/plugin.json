@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "description": "Query the Artificial Intelligence Ontology (AIO) to look up AI concepts, algorithms, techniques, and model relationships. Exposes an aio-search subagent for use in Claude Code.",
   "author": {
-    "name": "sumin"
+    "name": "fa-ina-tic",
+    "email": "sooh0601@gmail.com"
   },
   "agents": "../aio-search/",
   "keywords": ["ai", "ontology", "knowledge-graph", "sparql", "research"],

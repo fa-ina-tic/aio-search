@@ -1,7 +1,8 @@
 {
   "name": "aio-agent",
   "owner": {
-    "name": "sumin"
+    "name": "fa-ina-tic",
+    "email": "sooh0601@gmail.com"
   },
   "metadata": {
     "description": "AIO (Artificial Intelligence Ontology) search agent for Claude Code",
