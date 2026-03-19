@@ -1,0 +1,11 @@
+{
+  "name": "aio-search",
+  "version": "0.1.0",
+  "description": "Query the Artificial Intelligence Ontology (AIO) to look up AI concepts, algorithms, techniques, and model relationships. Exposes an aio-search subagent for use in Claude Code.",
+  "author": {
+    "name": "sumin"
+  },
+  "agents": "../aio-search/",
+  "keywords": ["ai", "ontology", "knowledge-graph", "sparql", "research"],
+  "license": "MIT"
+}

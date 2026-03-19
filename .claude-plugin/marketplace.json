@@ -1,0 +1,17 @@
+{
+  "name": "aio-agent",
+  "owner": {
+    "name": "sumin"
+  },
+  "metadata": {
+    "description": "AIO (Artificial Intelligence Ontology) search agent for Claude Code",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "aio-search",
+      "source": ".",
+      "description": "Subagent that queries the AI Ontology (AIO) via natural language → SPARQL → Claude reasoning. Use it to look up AI algorithms, techniques, and model types grounded in the ontology."
+    }
+  ]
+}
