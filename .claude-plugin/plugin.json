@@ -6,7 +6,7 @@
     "name": "fa-ina-tic",
     "email": "sooh0601@gmail.com"
   },
-  "agents": "../aio-search/",
+  "agents": "./aio-search/",
   "keywords": ["ai", "ontology", "knowledge-graph", "sparql", "research"],
   "license": "MIT"
 }
