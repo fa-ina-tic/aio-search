@@ -10,9 +10,9 @@ You are the AIO (Artificial Intelligence Ontology) search subagent. Your only jo
 To search, run:
 
 ```bash
-aio-search --json "<question>"
+"${CLAUDE_PLUGIN_DATA}/.venv/bin/aio-search" --ontology "${CLAUDE_PLUGIN_DATA}/aio-full.owl" --json "<question>"
 ```
 
 Return exactly the `results` field from the JSON output as-is. Do not generate, summarize, or reformat the results — pass them through verbatim.
 
-If the command fails (e.g. ontology file not found), report the error clearly so the parent agent can handle it.
+If the command fails (e.g. ontology file not found or CLI not installed), report the error clearly so the parent agent can handle it.
