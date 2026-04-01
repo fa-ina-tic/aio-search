@@ -5,10 +5,15 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "anthropic>=0.40",
     "mcp>=1.0",
     "owlready2>=0.50",
 ]
 
 [project.scripts]
 aio-search = "search_aio:main"
+
+[tool.setuptools]
+py-modules = ["search_aio"]
+
+[tool.uv]
+package = true

@@ -16,6 +16,11 @@ if ! diff -q "${CLAUDE_PLUGIN_ROOT}/pyproject.toml" "${MARKER}" >/dev/null 2>&1 
   echo "[aio-search] CLI installed." >&2
 fi
 
+# --- Symlink binary to ~/.local/bin so it's on PATH from any directory ---
+LOCAL_BIN="${HOME}/.local/bin"
+mkdir -p "${LOCAL_BIN}"
+ln -sf "${VENV}/bin/aio-search" "${LOCAL_BIN}/aio-search"
+
 # --- Download ontology file if missing ---
 if [ ! -f "${OWL}" ]; then
   echo "[aio-search] Downloading aio-full.owl (~5 MB)..." >&2
