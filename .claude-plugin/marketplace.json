@@ -11,7 +11,7 @@
   "plugins": [
     {
       "name": "aio-search",
-      "source": ".",
+      "source": "./",
       "description": "Subagent that queries the AI Ontology (AIO) via natural language → SPARQL → Claude reasoning. Use it to look up AI algorithms, techniques, and model types grounded in the ontology."
     }
   ]
