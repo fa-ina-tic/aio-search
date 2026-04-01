@@ -69,7 +69,7 @@ aio-search --json "What is supervised learning?"
 Install directly from GitHub into Claude Code:
 
 ```bash
-/plugin marketplace add <your-github-username>/aio-agent
+/plugin marketplace add fa-ina-tic/aio-search
 ```
 
 Or validate locally before distributing:
@@ -98,7 +98,7 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
     "aio-ontology": {
       "command": "uv",
       "args": ["run", "mcp_server.py"],
-      "cwd": "/absolute/path/to/aio-agent",
+      "cwd": "/absolute/path/to/aio-search",
       "env": {
         "ANTHROPIC_API_KEY": "sk-..."
       }
