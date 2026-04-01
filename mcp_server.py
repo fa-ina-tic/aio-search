@@ -1,28 +1,45 @@
 #!/usr/bin/env python3
-"""MCP server — exposes AIO ontology search as a tool for Claude Desktop / claude.ai."""
+"""MCP server — exposes AIO ontology search as a tool for Claude Desktop / claude.ai.
+
+NOTE: This MCP server is kept for Claude Desktop integration. When using Claude
+Code, prefer the aio-search agent or skill instead — no API key required.
+"""
 
 from mcp.server.fastmcp import FastMCP
-from search_aio import search
+from search_aio import label_search, run_sparql, _load_ontology
 
 mcp = FastMCP("aio-ontology")
 
 
 @mcp.tool()
-def search_aio(question: str) -> str:
-    """Query the Artificial Intelligence Ontology (AIO) with a natural-language question.
-
-    Use this to look up AI concepts, algorithms, techniques, model types, and
-    their relationships. Returns raw SPARQL result rows from the ontology.
-    Scope filtering is handled by the caller.
+def search_aio_sparql(sparql: str) -> str:
+    """Execute a SPARQL SELECT query against the AIO ontology.
 
     Args:
-        question: A natural-language question about an AI concept.
+        sparql: A SPARQL SELECT query. Standard aio/rdfs/owl/rdf prefixes are
+                injected automatically if omitted.
 
     Returns:
-        Raw ontology result rows as a newline-separated string.
+        Raw ontology result rows, one per line.
     """
-    result = search(question)
-    return "\n".join(str(row) for row in result["results"])
+    _load_ontology()
+    results = run_sparql(sparql)
+    return "\n".join(str(row) for row in results)
+
+
+@mcp.tool()
+def search_aio_label(term: str) -> str:
+    """Search the AIO ontology by label/comment substring (no SPARQL needed).
+
+    Args:
+        term: Case-insensitive substring to search in rdfs:label and rdfs:comment.
+
+    Returns:
+        Matching entities as [iri, label, comment] rows, one per line.
+    """
+    _load_ontology()
+    results = label_search(term)
+    return "\n".join(str(row) for row in results)
 
 
 if __name__ == "__main__":
